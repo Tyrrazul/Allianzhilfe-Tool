@@ -1,9 +1,8 @@
 import streamlit as st
 import math
 
-# Hintergrund & Göttersymbole anzeigen
-
-def set_custom_background_and_icons():
+# Hintergrund & Göttersymbole + Styling einbinden
+def set_custom_style():
     background_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/Papyrus%20background.png"
     khorne_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/khorne.png"
     nurgle_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/nurgle.png"
@@ -11,12 +10,46 @@ def set_custom_background_and_icons():
     tzeentch_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/tzeentch.png"
 
     st.markdown(f"""
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
     .stApp {{
         background-image: url('{background_url}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
+        font-family: 'MedievalSharp', cursive !important;
+        color: #2e1e0f;
+        text-shadow: 1px 1px 1px #00000066;
+    }}
+
+    h1, h2, h3, .stTitle, .stHeader {{
+        color: #3c0000;
+        text-shadow: 2px 2px 4px black;
+    }}
+
+    .stButton>button {{
+        background-color: #550000;
+        color: #fff;
+        border: 2px solid #a00;
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.5em 1em;
+        box-shadow: 2px 2px 8px #000;
+        transition: 0.2s ease-in-out;
+    }}
+
+    .stButton>button:hover {{
+        background-color: #770000;
+        transform: scale(1.05);
+        box-shadow: 3px 3px 12px #000;
+    }}
+
+    .stDataFrameContainer {{
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid #aaa;
+        border-radius: 6px;
+        padding: 1em;
+        box-shadow: 2px 2px 6px #000;
     }}
 
     .corner-icon {{
@@ -38,51 +71,28 @@ def set_custom_background_and_icons():
     <img src="{tzeentch_url}" class="corner-icon" id="tzeentch">
     """, unsafe_allow_html=True)
 
-set_custom_background_and_icons()
+set_custom_style()
 
-# Grimdark Schrift & Button-Styling
-st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
-<style>
-html, body, [class*="css"]  {
-    font-family: 'MedievalSharp', cursive !important;
-    color: #2e1e0f;
-    text-shadow: 1px 1px 1px #00000066;
-}
+# Seiten-Einstellungen
+st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
+st.title("🛠️ Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
+st.markdown("Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.")
 
-h1, h2, h3, .stTitle, .stHeader {
-    color: #3c0000;
-    text-shadow: 2px 2px 4px black;
-}
+# Auswahl: Gebäude oder Ritual
+help_type = st.selectbox("Was möchtest du berechnen?", ["Gebäude", "Ritual"])
 
-.stButton>button {
-    background-color: #550000;
-    color: #fff;
-    border: 2px solid #a00;
-    border-radius: 8px;
-    font-weight: bold;
-    padding: 0.5em 1em;
-    box-shadow: 2px 2px 8px #000;
-    transition: 0.2s ease-in-out;
-}
+# Eingaben
+col1, col2 = st.columns(2)
 
-.stButton>button:hover {
-    background-color: #770000;
-    transform: scale(1.05);
-    box-shadow: 3px 3px 12px #000;
-}
+with col1:
+    hours = st.number_input("Startzeit - Stunden", min_value=0, max_value=999, value=1)
+    helps = st.number_input("Freigeschaltete Allianzhilfen", min_value=1, max_value=50, value=20)
 
-.stDataFrameContainer {
-    background-color: rgba(255, 255, 255, 0.8);
-    border: 1px solid #aaa;
-    border-radius: 6px;
-    padding: 1em;
-    box-shadow: 2px 2px 6px #000;
-}
-</style>
-""", unsafe_allow_html=True)
+with col2:
+    minutes = st.number_input("Startzeit - Minuten", min_value=0, max_value=59, value=0)
+    target_level = st.number_input("Ziel-Level", min_value=1, max_value=30, value=10)
 
-# Funktion: Mindesthilfezeit basierend auf Ziel-Level und Typ
+# Mindesthilfezeit berechnen
 def get_min_help_seconds(target_level, help_type):
     help_table = {
         "Gebäude": {
@@ -114,28 +124,7 @@ def get_min_help_seconds(target_level, help_type):
             return seconds
     return 60
 
-# Streamlit UI
-st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
-st.title("🛠️ Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
-
-st.markdown("""
-Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.
-""")
-
-# Auswahl: Gebäude oder Ritual
-help_type = st.selectbox("Was möchtest du berechnen?", ["Gebäude", "Ritual"])
-
-# Eingaben
-col1, col2 = st.columns(2)
-
-with col1:
-    hours = st.number_input("Startzeit - Stunden", min_value=0, max_value=999, value=1)
-    helps = st.number_input("Freigeschaltete Allianzhilfen", min_value=1, max_value=50, value=20)
-
-with col2:
-    minutes = st.number_input("Startzeit - Minuten", min_value=0, max_value=59, value=0)
-    target_level = st.number_input("Ziel-Level", min_value=1, max_value=30, value=10)
-
+# Hauptberechnung
 initial_timer_seconds = hours * 3600 + minutes * 60
 min_help = get_min_help_seconds(target_level, help_type)
 
@@ -160,7 +149,7 @@ if st.button("Berechnen"):
         if remaining_time <= 0:
             break
 
-    # Ausgabe
+    # Ergebnisse anzeigen
     st.subheader("🧞 Ergebnis")
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
