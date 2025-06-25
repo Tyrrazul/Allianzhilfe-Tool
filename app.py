@@ -2,7 +2,6 @@ import streamlit as st
 import math
 
 # Hintergrund & Göttersymbole anzeigen
-
 def set_custom_background_and_icons():
     background_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/Papyrus%20background.png"
     khorne_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/khorne.png"
@@ -55,15 +54,16 @@ def get_min_help_seconds(target_level, help_type):
             (21, 30): 7200
         },
         "Ritual": {
-            (1, 6): 60,
-            (7, 7): 180,
-            (8, 8): 300,
-            (9, 11): 600,
-            (12, 14): 1200,
-            (15, 15): 2400,
-            (16, 18): 3600,
-            (19, 20): 5400,
-            (21, 30): 7200
+            (1, 1): 60,
+            (2, 2): 180,
+            (3, 3): 300,
+            (4, 4): 600,
+            (5, 5): 1200,
+            (6, 6): 2400,
+            (7, 7): 3600,
+            (8, 8): 5400,
+            (9, 9): 7200,
+            (10, 10): 14400
         }
     }
     table = help_table.get(help_type, help_table["Gebäude"])
@@ -118,18 +118,16 @@ if st.button("Berechnen"):
         if remaining_time <= 0:
             break
 
-    # Ausgabe
+    # Umrechnung verbleibende Zeit in Stunden, Minuten, Sekunden
+    hours = remaining_time // 3600
+    minutes = (remaining_time % 3600) // 60
+    seconds = remaining_time % 60
+
     st.subheader("🧞 Ergebnis")
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
     st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
-    # Umrechnung verbleibende Zeit in Stunden, Minuten, Sekunden
-hours = remaining_time // 3600
-minutes = (remaining_time % 3600) // 60
-seconds = remaining_time % 60
-
-st.markdown(f"➡️ **{minutes} Minuten {seconds} Sekunden** / **{hours} Stunden {minutes} Minuten**")
-
+    st.markdown(f"➡️ **{minutes} Minuten {seconds} Sekunden** / **{hours} Stunden {minutes} Minuten**")
 
     st.markdown("---")
     st.subheader("📊 Detaillierte Hilfe-Schritte")
