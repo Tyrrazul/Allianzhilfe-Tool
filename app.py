@@ -1,38 +1,38 @@
 import streamlit as st
-import math
 
 # Funktion: Mindesthilfezeit basierend auf Ziel-Level und Typ
 def get_min_help_seconds(target_level, help_type):
-    # Zeit in Sekunden je nach Levelbereich
-    help_table = {
-        "Gebäude": {
-            (1, 6): 60,
-            (7, 7): 180,
-            (8, 8): 300,
-            (9, 11): 600,
-            (12, 14): 1200,
-            (15, 15): 2400,
-            (16, 18): 3600,
-            (19, 20): 5400,
-            (21, 30): 7200
-        },
-        "Ritual": {
-            (1, 6): 60,
-            (7, 7): 180,
-            (8, 8): 300,
-            (9, 11): 600,
-            (12, 14): 1200,
-            (15, 15): 2400,
-            (16, 18): 3600,
-            (19, 20): 5400,
-            (21, 30): 7200
-        }
+    ritual_help = {
+        1: 60,
+        2: 180,
+        3: 300,
+        4: 600,
+        5: 1200,
+        6: 2400,
+        7: 3600,
+        8: 5400,
+        9: 7200,
+        10: 14400
     }
-    table = help_table.get(help_type, help_table["Gebäude"])
-    for level_range, seconds in table.items():
-        if level_range[0] <= target_level <= level_range[1]:
-            return seconds
-    return 60
+    building_help_table = {
+        (1, 6): 60,
+        (7, 7): 180,
+        (8, 8): 300,
+        (9, 11): 600,
+        (12, 14): 1200,
+        (15, 15): 2400,
+        (16, 18): 3600,
+        (19, 20): 5400,
+        (21, 30): 7200
+    }
+
+    if help_type == "Ritual":
+        return ritual_help.get(target_level, 60)  # Falls Level > 10, Default 60 Sekunden
+    else:  # Gebäude
+        for level_range, seconds in building_help_table.items():
+            if level_range[0] <= target_level <= level_range[1]:
+                return seconds
+        return 60
 
 # Streamlit UI
 st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
@@ -95,3 +95,4 @@ if st.button("Berechnen"):
         "Zeit reduziert (s)": [row[1] for row in help_steps],
         "Restzeit (s)": [row[2] for row in help_steps],
     })
+
