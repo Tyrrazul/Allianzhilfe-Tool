@@ -1,7 +1,5 @@
 import streamlit as st
 import math
-import pandas as pd
-import plotly.express as px
 
 # Hintergrund & Göttersymbole anzeigen
 def set_custom_background_and_icons():
@@ -13,55 +11,23 @@ def set_custom_background_and_icons():
 
     st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
-
     .stApp {{
-        font-family: 'UnifrakturCook', cursive;
-        background-color: #1a1a1a;
-        color: #e6e2dc;
-        min-height: 100vh;
-        margin: 0;
-        padding: 1rem 2rem;
+        background-image: url('{background_url}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
     }}
-
-    h1, h2, h3, h4 {{
-        color: #b30000;
-        text-shadow: 1.5px 1.5px 3px #000;
-        font-weight: 700;
-    }}
-
-    .stButton>button {{
-        background-color: #550000;
-        color: #f0e6dc;
-        border: 2px solid #a00000;
-        border-radius: 8px;
-        font-weight: 700;
-        padding: 0.5em 1.2em;
-        box-shadow: 2px 2px 8px #000;
-        transition: 0.2s ease-in-out;
-        font-family: 'UnifrakturCook', cursive;
-        font-size: 1.1rem;
-        cursor: pointer;
-    }}
-    .stButton>button:hover {{
-        background-color: #770000;
-        transform: scale(1.05);
-        box-shadow: 3px 3px 12px #330000;
-    }}
-
     .corner-icon {{
         position: fixed;
         width: 240px;
         height: 240px;
         z-index: 999;
     }}
-
     #slaanesh {{ top: 10px; left: 10px; }}
     #nurgle {{ top: 10px; right: 10px; }}
     #khorne {{ bottom: 10px; left: 10px; }}
     #tzeentch {{ bottom: 10px; right: 10px; }}
     </style>
-
     <img src="{slaanesh_url}" class="corner-icon" id="slaanesh">
     <img src="{nurgle_url}" class="corner-icon" id="nurgle">
     <img src="{khorne_url}" class="corner-icon" id="khorne">
@@ -70,7 +36,7 @@ def set_custom_background_and_icons():
 
 set_custom_background_and_icons()
 
-# Mindesthilfezeit basierend auf Ziel-Level und Typ
+# Funktion: Mindesthilfezeit basierend auf Ziel-Level und Typ
 def get_min_help_seconds(target_level, help_type):
     help_table = {
         "Gebäude": {
@@ -85,41 +51,46 @@ def get_min_help_seconds(target_level, help_type):
             (21, 30): 7200
         },
         "Ritual": {
-            1: 60,
-            2: 180,
-            3: 300,
-            4: 600,
-            5: 1200,
-            6: 2400,
-            7: 3600,
-            8: 5400,
-            9: 7200,
-            10: 14400
+            (1, 6): 60,
+            (7, 7): 180,
+            (8, 8): 300,
+            (9, 11): 600,
+            (12, 14): 1200,
+            (15, 15): 2400,
+            (16, 18): 3600,
+            (19, 20): 5400,
+            (21, 30): 7200
         }
     }
-    if help_type == "Gebäude":
-        for level_range, seconds in help_table["Gebäude"].items():
-            if level_range[0] <= target_level <= level_range[1]:
-                return seconds
-    else:  # Ritual
-        return help_table["Ritual"].get(target_level, 60)
+    table = help_table.get(help_type, help_table["Gebäude"])
+    for level_range, seconds in table.items():
+        if level_range[0] <= target_level <= level_range[1]:
+            return seconds
     return 60
 
-def seconds_to_h_m_s(seconds):
-    h = seconds // 3600
-    m = (seconds % 3600) // 60
-    s = seconds % 60
-    return f"{h}h {m}m {s}s"
+# Zeitformatierung
+def format_time(seconds):
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{minutes}m {secs}s"
 
+def format_hours_minutes(seconds):
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    return f"{hours}h {minutes}m"
+
+# Streamlit UI
 st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
-st.title("Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
+st.title("Warhammer: Chaos & Conquest – Allianzhilfe-Rechner")
 
 st.markdown("""
 Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.
 """)
 
+# Auswahl: Gebäude oder Ritual
 help_type = st.selectbox("Was möchtest du berechnen?", ["Gebäude", "Ritual"])
 
+# Eingaben
 col1, col2 = st.columns(2)
 
 with col1:
@@ -140,41 +111,27 @@ if st.button("Berechnen"):
 
     for i in range(1, helps + 1):
         percent_reduction = remaining_time * 0.01
-        if percent_reduction >= min_help:
-            reduction = percent_reduction
-        else:
-            reduction = min_help
-
+        reduction = max(min_help, percent_reduction)
         reduction = min(reduction, remaining_time)
         remaining_time -= reduction
         total_reduced += reduction
-
         help_steps.append((i, round(reduction), round(remaining_time)))
 
         if remaining_time <= 0:
             break
 
+    # Ausgabe
     st.subheader("Ergebnis")
     st.markdown(f"**Art:** {help_type}")
-    st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden ({seconds_to_h_m_s(round(total_reduced))})")
-    st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden ({seconds_to_h_m_s(round(remaining_time))})")
+    st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
+    st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
+    st.markdown(f"➡️ **{format_time(remaining_time)}** / **{format_hours_minutes(remaining_time)}**")
 
     st.markdown("---")
     st.subheader("Detaillierte Hilfe-Schritte")
-
-    # Für Diagramm Daten vorbereiten
-    df = pd.DataFrame({
+    st.write("Jede Zeile zeigt die Wirkung einer einzelnen Allianzhilfe.")
+    st.dataframe({
         "Hilfe #": [row[0] for row in help_steps],
-        "Zeit reduziert (Sek.)": [row[1] for row in help_steps],
-        "Restzeit (Sek.)": [row[2] for row in help_steps],
+        "Zeit reduziert (s)": [row[1] for row in help_steps],
+        "Restzeit (s)": [row[2] for row in help_steps],
     })
-
-    # Linien-Diagramm für Restzeit
-    fig = px.line(df, x="Hilfe #", y="Restzeit (Sek.)",
-                  title=f"Restzeit nach jeder Allianzhilfe bei {help_type}",
-                  labels={"Hilfe #": "Anzahl Allianzhilfen", "Restzeit (Sek.)": "Restzeit (Sekunden)"},
-                  template="plotly_dark",
-                  markers=True)
-    st.plotly_chart(fig, use_container_width=True)
-
-    st.write(df)
