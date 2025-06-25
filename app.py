@@ -40,6 +40,48 @@ def set_custom_background_and_icons():
 
 set_custom_background_and_icons()
 
+# Grimdark Schrift & Button-Styling
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+html, body, [class*="css"]  {
+    font-family: 'MedievalSharp', cursive !important;
+    color: #2e1e0f;
+    text-shadow: 1px 1px 1px #00000066;
+}
+
+h1, h2, h3, .stTitle, .stHeader {
+    color: #3c0000;
+    text-shadow: 2px 2px 4px black;
+}
+
+.stButton>button {
+    background-color: #550000;
+    color: #fff;
+    border: 2px solid #a00;
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 0.5em 1em;
+    box-shadow: 2px 2px 8px #000;
+    transition: 0.2s ease-in-out;
+}
+
+.stButton>button:hover {
+    background-color: #770000;
+    transform: scale(1.05);
+    box-shadow: 3px 3px 12px #000;
+}
+
+.stDataFrameContainer {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    padding: 1em;
+    box-shadow: 2px 2px 6px #000;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # Funktion: Mindesthilfezeit basierend auf Ziel-Level und Typ
 def get_min_help_seconds(target_level, help_type):
     help_table = {
