@@ -3,7 +3,41 @@ import math
 import altair as alt
 import pandas as pd
 
-# Hintergrund & Göttersymbole anzeigen
+# Grimdark Warhammer Schriftart importieren (Blackletter Style)
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+
+    .stApp {
+        font-family: 'UnifrakturCook', cursive;
+        background-color: #1b1b1b;
+        color: #dddcdc;
+    }
+    h1, h2, h3, h4 {
+        color: #b30000;
+        text-shadow: 2px 2px 6px #000;
+    }
+    .stButton>button {
+        background-color: #550000;
+        color: #fff;
+        border: 2px solid #a00;
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.5em 1em;
+        box-shadow: 2px 2px 8px #000;
+        transition: 0.2s ease-in-out;
+        font-family: 'UnifrakturCook', cursive;
+        font-size: 1.1rem;
+    }
+    .stButton>button:hover {
+        background-color: #770000;
+        transform: scale(1.05);
+        box-shadow: 3px 3px 12px #000;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Hintergrund & Göttersymbole anzeigen (optional, falls du es drinlassen willst)
 def set_custom_background_and_icons():
     background_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/Papyrus%20background.png"
     khorne_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/khorne.png"
@@ -19,7 +53,7 @@ def set_custom_background_and_icons():
         background-position: center;
         background-attachment: fixed;
         color: #dddcdc;
-        font-family: 'Garamond', serif;
+        font-family: 'UnifrakturCook', cursive;
     }}
 
     .corner-icon {{
@@ -34,35 +68,6 @@ def set_custom_background_and_icons():
     #nurgle {{ top: 10px; right: 10px; }}
     #khorne {{ bottom: 10px; left: 10px; }}
     #tzeentch {{ bottom: 10px; right: 10px; }}
-
-    /* Grimdark Style Buttons */
-    .stButton>button {{
-        background-color: #550000;
-        color: #fff;
-        border: 2px solid #a00;
-        border-radius: 8px;
-        font-weight: bold;
-        padding: 0.5em 1em;
-        box-shadow: 2px 2px 8px #000;
-        transition: 0.2s ease-in-out;
-        font-family: 'Garamond', serif;
-    }}
-
-    .stButton>button:hover {{
-        background-color: #770000;
-        transform: scale(1.05);
-        box-shadow: 3px 3px 12px #000;
-    }}
-
-    /* Dataframe Styling */
-    .stDataFrameContainer {{
-        background-color: rgba(10, 10, 10, 0.7);
-        border: 1px solid #440000;
-        border-radius: 6px;
-        padding: 1em;
-        box-shadow: 2px 2px 6px #000;
-        color: #dddcdc !important;
-    }}
     </style>
 
     <img src="{slaanesh_url}" class="corner-icon" id="slaanesh" />
@@ -108,7 +113,7 @@ def get_min_help_seconds(target_level, help_type):
 # Seite konfigurieren
 st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
 
-st.title("🛠️ Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
+st.title("Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
 st.markdown("""
 Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.
 """)
@@ -157,19 +162,20 @@ if st.button("Berechnen"):
     minutes_r = remainder // 60
     seconds_r = remainder % 60
 
-    st.subheader("🧞 Ergebnis")
+    st.subheader("Ergebnis")
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
     st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
-    st.markdown(f"➡️ **{minutes_r} Minuten {seconds_r} Sekunden** / **{hours_r} Stunden {minutes_r} Minuten**")
+    st.markdown(f"➡️ **{hours_r} Stunden {minutes_r} Minuten** / **{minutes_r} Minuten {seconds_r} Sekunden**")
 
     st.markdown("---")
-    st.subheader("📊 Detaillierte Hilfe-Schritte")
+    st.subheader("Detaillierte Hilfe-Schritte")
 
     # DataFrame aus den Schritten
     df = pd.DataFrame(help_steps, columns=["Hilfe #", "Zeit reduziert (s)", "Restzeit (s)"])
 
-    # Altair Chart erstellen
+    # Die Werte aus der Berechnung verwenden (korrekt!)
+    # Diagramm mit Altair erstellen
     base = alt.Chart(df).encode(
         x=alt.X("Hilfe #", title="Allianzhilfe Nr."),
         tooltip=[
@@ -179,12 +185,10 @@ if st.button("Berechnen"):
         ]
     )
 
-    # Balken für reduzierte Zeit
     bars = base.mark_bar(color="#990000", cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
         y=alt.Y("Zeit reduziert (s)", title="Sekunden reduziert"),
     )
 
-    # Linie für Restzeit
     line = base.mark_line(color="#cc5555", strokeWidth=3, point=True).encode(
         y=alt.Y("Restzeit (s)", title="Verbleibende Zeit (Sek.)")
     )
@@ -204,7 +208,7 @@ if st.button("Berechnen"):
     ).configure_title(
         fontSize=18,
         color="#ff9999",
-        font='Garamond'
+        font='UnifrakturCook'
     )
 
     st.altair_chart(chart, use_container_width=True)
