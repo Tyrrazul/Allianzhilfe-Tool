@@ -2,6 +2,7 @@ import streamlit as st
 import math
 
 # Hintergrund & Göttersymbole anzeigen
+
 def set_custom_background_and_icons():
     background_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/Papyrus%20background.png"
     khorne_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/khorne.png"
@@ -29,6 +30,37 @@ def set_custom_background_and_icons():
     #nurgle {{ top: 10px; right: 10px; }}
     #khorne {{ bottom: 10px; left: 10px; }}
     #tzeentch {{ bottom: 10px; right: 10px; }}
+
+    /* Button-Styling */
+    .stButton>button {{
+        background-color: #550000;
+        color: #fff;
+        border: 2px solid #a00;
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.5em 1em;
+        box-shadow: 2px 2px 8px #000;
+        transition: 0.2s ease-in-out;
+    }}
+
+    .stButton>button:hover {{
+        background-color: #770000;
+        transform: scale(1.05);
+        box-shadow: 3px 3px 12px #000;
+    }}
+
+    /* Eingabefeld-Hintergründe */
+    .stNumberInput input {{
+        background-color: rgba(0,0,0,0.5);
+        color: white;
+        border: 1px solid #a00;
+    }}
+
+    .stSelectbox div[data-baseweb="select"] > div {{
+        background-color: rgba(0,0,0,0.5);
+        color: white;
+        border: 1px solid #a00;
+    }}
     </style>
 
     <img src="{slaanesh_url}" class="corner-icon" id="slaanesh">
@@ -54,16 +86,15 @@ def get_min_help_seconds(target_level, help_type):
             (21, 30): 7200
         },
         "Ritual": {
-            (1, 1): 60,
-            (2, 2): 180,
-            (3, 3): 300,
-            (4, 4): 600,
-            (5, 5): 1200,
-            (6, 6): 2400,
-            (7, 7): 3600,
-            (8, 8): 5400,
-            (9, 9): 7200,
-            (10, 10): 14400
+            (1, 6): 60,
+            (7, 7): 180,
+            (8, 8): 300,
+            (9, 11): 600,
+            (12, 14): 1200,
+            (15, 15): 2400,
+            (16, 18): 3600,
+            (19, 20): 5400,
+            (21, 30): 7200
         }
     }
     table = help_table.get(help_type, help_table["Gebäude"])
@@ -74,7 +105,7 @@ def get_min_help_seconds(target_level, help_type):
 
 # Streamlit UI
 st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
-st.title("🛠️ Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
+st.title("Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
 
 st.markdown("""
 Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.
@@ -118,19 +149,19 @@ if st.button("Berechnen"):
         if remaining_time <= 0:
             break
 
-    # Umrechnung verbleibende Zeit in Stunden, Minuten, Sekunden
-    hours = remaining_time // 3600
-    minutes = (remaining_time % 3600) // 60
-    seconds = remaining_time % 60
+    # Zeitformatierung
+    rem_h = int(remaining_time) // 3600
+    rem_m = (int(remaining_time) % 3600) // 60
+    rem_s = int(remaining_time) % 60
 
-    st.subheader("🧞 Ergebnis")
+    st.subheader("Ergebnis")
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
-    st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
-    st.markdown(f"➡️ **{minutes} Minuten {seconds} Sekunden** / **{hours} Stunden {minutes} Minuten**")
+    st.markdown(f"**Verbleibende Zeit:** {int(remaining_time)} Sekunden")
+    st.markdown(f"➡️ **{rem_m} Minuten {rem_s} Sekunden** / **{rem_h} Stunden {rem_m} Minuten**")
 
     st.markdown("---")
-    st.subheader("📊 Detaillierte Hilfe-Schritte")
+    st.subheader("Detaillierte Hilfe-Schritte")
     st.write("Jede Zeile zeigt die Wirkung einer einzelnen Allianzhilfe.")
     st.dataframe({
         "Hilfe #": [row[0] for row in help_steps],
