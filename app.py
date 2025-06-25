@@ -1,36 +1,36 @@
 import streamlit as st
 import math
-import altair as alt
 import pandas as pd
+import plotly.express as px
 
-# Seite konfigurieren
-st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
+# Hintergrund & Göttersymbole anzeigen
+def set_custom_background_and_icons():
+    background_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/Papyrus%20background.png"
+    khorne_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/khorne.png"
+    nurgle_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/nurgle.png"
+    slaanesh_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/slaanesh.png"
+    tzeentch_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/tzeentch.png"
 
-# CSS Styling mit Google Font und Grimdark Style
-st.markdown("""
+    st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
 
-    /* Gesamte App Schrift + Farben */
-    .stApp {
+    .stApp {{
         font-family: 'UnifrakturCook', cursive;
         background-color: #1a1a1a;
         color: #e6e2dc;
-        background-image: url('https://i.imgur.com/3vzHKDM.png'); /* leichte Blutspritzer */
-        background-repeat: no-repeat;
-        background-position: center top;
-        background-size: 150px 150px;
-    }
+        min-height: 100vh;
+        margin: 0;
+        padding: 1rem 2rem;
+    }}
 
-    /* Überschriften */
-    h1, h2, h3, h4 {
+    h1, h2, h3, h4 {{
         color: #b30000;
         text-shadow: 1.5px 1.5px 3px #000;
         font-weight: 700;
-    }
+    }}
 
-    /* Buttons Styling */
-    .stButton>button {
+    .stButton>button {{
         background-color: #550000;
         color: #f0e6dc;
         border: 2px solid #a00000;
@@ -42,23 +42,35 @@ st.markdown("""
         font-family: 'UnifrakturCook', cursive;
         font-size: 1.1rem;
         cursor: pointer;
-    }
-    .stButton>button:hover {
+    }}
+    .stButton>button:hover {{
         background-color: #770000;
         transform: scale(1.05);
         box-shadow: 3px 3px 12px #330000;
-    }
+    }}
+
+    .corner-icon {{
+        position: fixed;
+        width: 240px;
+        height: 240px;
+        z-index: 999;
+    }}
+
+    #slaanesh {{ top: 10px; left: 10px; }}
+    #nurgle {{ top: 10px; right: 10px; }}
+    #khorne {{ bottom: 10px; left: 10px; }}
+    #tzeentch {{ bottom: 10px; right: 10px; }}
     </style>
-""", unsafe_allow_html=True)
 
-# Titel ohne Emojis
-st.title("Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
+    <img src="{slaanesh_url}" class="corner-icon" id="slaanesh">
+    <img src="{nurgle_url}" class="corner-icon" id="nurgle">
+    <img src="{khorne_url}" class="corner-icon" id="khorne">
+    <img src="{tzeentch_url}" class="corner-icon" id="tzeentch">
+    """, unsafe_allow_html=True)
 
-st.markdown("""
-Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.
-""")
+set_custom_background_and_icons()
 
-# Mindesthilfezeit Funktion
+# Mindesthilfezeit basierend auf Ziel-Level und Typ
 def get_min_help_seconds(target_level, help_type):
     help_table = {
         "Gebäude": {
@@ -73,30 +85,47 @@ def get_min_help_seconds(target_level, help_type):
             (21, 30): 7200
         },
         "Ritual": {
-            (1, 6): 60,
-            (7, 7): 180,
-            (8, 8): 300,
-            (9, 11): 600,
-            (12, 14): 1200,
-            (15, 15): 2400,
-            (16, 18): 3600,
-            (19, 20): 5400,
-            (21, 30): 7200
+            1: 60,
+            2: 180,
+            3: 300,
+            4: 600,
+            5: 1200,
+            6: 2400,
+            7: 3600,
+            8: 5400,
+            9: 7200,
+            10: 14400
         }
     }
-    table = help_table.get(help_type, help_table["Gebäude"])
-    for level_range, seconds in table.items():
-        if level_range[0] <= target_level <= level_range[1]:
-            return seconds
+    if help_type == "Gebäude":
+        for level_range, seconds in help_table["Gebäude"].items():
+            if level_range[0] <= target_level <= level_range[1]:
+                return seconds
+    else:  # Ritual
+        return help_table["Ritual"].get(target_level, 60)
     return 60
 
-# User Inputs
+def seconds_to_h_m_s(seconds):
+    h = seconds // 3600
+    m = (seconds % 3600) // 60
+    s = seconds % 60
+    return f"{h}h {m}m {s}s"
+
+st.set_page_config(page_title="Allianzhilfe-Rechner", layout="centered")
+st.title("Warhammer: Chaos & Conquest - Allianzhilfe-Rechner")
+
+st.markdown("""
+Berechne, wie viel Zeit du bei **Gebäuden** oder **Ritualen** durch Allianzhilfe einsparst.
+""")
+
 help_type = st.selectbox("Was möchtest du berechnen?", ["Gebäude", "Ritual"])
 
 col1, col2 = st.columns(2)
+
 with col1:
     hours = st.number_input("Startzeit - Stunden", min_value=0, max_value=999, value=1)
     helps = st.number_input("Freigeschaltete Allianzhilfen", min_value=1, max_value=50, value=20)
+
 with col2:
     minutes = st.number_input("Startzeit - Minuten", min_value=0, max_value=59, value=0)
     target_level = st.number_input("Ziel-Level", min_value=1, max_value=30, value=10)
@@ -125,61 +154,27 @@ if st.button("Berechnen"):
         if remaining_time <= 0:
             break
 
-    # Umrechnung verbleibende Zeit in Stunden, Minuten, Sekunden
-    hours_r = remaining_time // 3600
-    remainder = remaining_time % 3600
-    minutes_r = remainder // 60
-    seconds_r = remainder % 60
-
     st.subheader("Ergebnis")
     st.markdown(f"**Art:** {help_type}")
-    st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
-    st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
-    st.markdown(f"➡️ {hours_r} Stunden {minutes_r} Minuten {seconds_r} Sekunden")
+    st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden ({seconds_to_h_m_s(round(total_reduced))})")
+    st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden ({seconds_to_h_m_s(round(remaining_time))})")
 
     st.markdown("---")
     st.subheader("Detaillierte Hilfe-Schritte")
 
-    # Dataframe für Altair
-    df = pd.DataFrame(help_steps, columns=["Hilfe #", "Zeit reduziert (s)", "Restzeit (s)"])
+    # Für Diagramm Daten vorbereiten
+    df = pd.DataFrame({
+        "Hilfe #": [row[0] for row in help_steps],
+        "Zeit reduziert (Sek.)": [row[1] for row in help_steps],
+        "Restzeit (Sek.)": [row[2] for row in help_steps],
+    })
 
-    # Korrekte Werte aus der Berechnung - fürs Diagramm
-    # Zeit reduziert als Balken, Restzeit als Linie (zweite Y-Achse)
+    # Linien-Diagramm für Restzeit
+    fig = px.line(df, x="Hilfe #", y="Restzeit (Sek.)",
+                  title=f"Restzeit nach jeder Allianzhilfe bei {help_type}",
+                  labels={"Hilfe #": "Anzahl Allianzhilfen", "Restzeit (Sek.)": "Restzeit (Sekunden)"},
+                  template="plotly_dark",
+                  markers=True)
+    st.plotly_chart(fig, use_container_width=True)
 
-    base = alt.Chart(df).encode(
-        x=alt.X("Hilfe #", title="Allianzhilfe Nr."),
-        tooltip=[
-            alt.Tooltip("Hilfe #", title="Hilfe Nr."),
-            alt.Tooltip("Zeit reduziert (s)", title="Zeit reduziert (Sek.)"),
-            alt.Tooltip("Restzeit (s)", title="Verbleibende Zeit (Sek.)"),
-        ]
-    )
-
-    bars = base.mark_bar(color="#8B0000", cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
-        y=alt.Y("Zeit reduziert (s)", title="Sekunden reduziert"),
-    )
-
-    line = base.mark_line(color="#FF4500", strokeWidth=3, point=True).encode(
-        y=alt.Y("Restzeit (s)", title="Verbleibende Zeit (Sek.)"),
-    )
-
-    layered_chart = alt.layer(bars, line).resolve_scale(
-        y='independent'
-    ).properties(
-        width=700,
-        height=400,
-        background="#2a2a2a",
-        title=f"Hilfe-Schritte: Zeit reduziert und Restzeit ({help_type})"
-    ).configure_title(
-        fontSize=20,
-        font='UnifrakturCook',
-        color='#b30000'
-    ).configure_axis(
-        labelColor="#e6e2dc",
-        titleColor="#b30000",
-        gridColor="#660000"
-    ).configure_view(
-        strokeWidth=0
-    )
-
-    st.altair_chart(layered_chart, use_container_width=True)
+    st.write(df)
