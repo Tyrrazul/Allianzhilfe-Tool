@@ -123,7 +123,13 @@ if st.button("Berechnen"):
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
     st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
-    st.markdown(f"➡️ **{round(remaining_time / 60, 2)} Minuten** / **{round(remaining_time / 3600, 2)} Stunden**")
+    # Umrechnung verbleibende Zeit in Stunden, Minuten, Sekunden
+hours = remaining_time // 3600
+minutes = (remaining_time % 3600) // 60
+seconds = remaining_time % 60
+
+st.markdown(f"➡️ **{minutes} Minuten {seconds} Sekunden** / **{hours} Stunden {minutes} Minuten**")
+
 
     st.markdown("---")
     st.subheader("📊 Detaillierte Hilfe-Schritte")
