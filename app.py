@@ -149,16 +149,20 @@ if st.button("Berechnen"):
         if remaining_time <= 0:
             break
 
-    # Zeitformatierung
+    # Zeitformatierung korrekt berechnen
     rem_h = int(remaining_time) // 3600
     rem_m = (int(remaining_time) % 3600) // 60
     rem_s = int(remaining_time) % 60
+
+    total_minutes = int(remaining_time) // 60
+    only_seconds = int(remaining_time) % 60
 
     st.subheader("Ergebnis")
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
     st.markdown(f"**Verbleibende Zeit:** {int(remaining_time)} Sekunden")
-    st.markdown(f"➡️ **{rem_m} Minuten {rem_s} Sekunden** / **{rem_h} Stunden {rem_m} Minuten**")
+    st.markdown(f"**{total_minutes} Minuten {only_seconds} Sekunden**")
+    st.markdown(f"**{rem_h} Stunden {rem_m} Minuten**")
 
     st.markdown("---")
     st.subheader("Detaillierte Hilfe-Schritte")
