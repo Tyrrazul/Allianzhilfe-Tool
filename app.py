@@ -21,8 +21,8 @@ def set_custom_background_and_icons():
 
     .corner-icon {{
         position: fixed;
-        width: 60px;
-        height: 60px;
+        width: 240px;
+        height: 240px;
         z-index: 999;
     }}
 
@@ -119,7 +119,7 @@ if st.button("Berechnen"):
             break
 
     # Ausgabe
-    st.subheader("🧾 Ergebnis")
+    st.subheader("🧞 Ergebnis")
     st.markdown(f"**Art:** {help_type}")
     st.markdown(f"**Gesamtzeit reduziert:** {round(total_reduced)} Sekunden")
     st.markdown(f"**Verbleibende Zeit:** {round(remaining_time)} Sekunden")
