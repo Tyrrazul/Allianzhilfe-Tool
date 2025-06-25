@@ -2,7 +2,6 @@ import streamlit as st
 import math
 
 # Hintergrund & Göttersymbole anzeigen
-
 def set_custom_background_and_icons():
     background_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/Papyrus%20background.png"
     khorne_url = "https://raw.githubusercontent.com/Tyrrazul/Allianzhilfe-Tool/main/khorne.png"
@@ -49,17 +48,15 @@ def set_custom_background_and_icons():
         box-shadow: 3px 3px 12px #000;
     }}
 
-    /* Eingabefeld-Hintergründe */
-    .stNumberInput input {{
-        background-color: rgba(0,0,0,0.5);
+    /* Eingabefeld-Styling */
+    .stNumberInput input, .stSelectbox div[data-baseweb="select"] > div {{
+        background-color: #550000;
         color: white;
-        border: 1px solid #a00;
-    }}
-
-    .stSelectbox div[data-baseweb="select"] > div {{
-        background-color: rgba(0,0,0,0.5);
-        color: white;
-        border: 1px solid #a00;
+        border: 2px solid #a00;
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.3em;
+        box-shadow: 2px 2px 8px #000;
     }}
     </style>
 
@@ -85,7 +82,7 @@ def get_min_help_seconds(target_level, help_type):
             (19, 20): 5400,
             (21, 30): 7200
         },
-         "Ritual": {
+        "Ritual": {
             (1, 1): 60,
             (2, 2): 180,
             (3, 3): 300,
@@ -150,7 +147,6 @@ if st.button("Berechnen"):
         if remaining_time <= 0:
             break
 
-    # Zeitformatierung korrekt berechnen
     rem_h = int(remaining_time) // 3600
     rem_m = (int(remaining_time) % 3600) // 60
     rem_s = int(remaining_time) % 60
